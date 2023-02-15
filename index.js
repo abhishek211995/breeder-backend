@@ -55,9 +55,9 @@ const insertOwner = (name) => {
 // insertOwner("Ram");
 // insertOwner("Shyam");
 
-const insertPets = ({name,breed,owner_id}) => {
+const insertPets = ({ name,father_id,mother_id, breed, owner_id }) => {
   connection.query(
-    `INSERT INTO pets (name, breed, owner_id) VALUES ("${name}", "${breed}", ${owner_id})`,
+    `INSERT INTO pets (name,father_id,mother_id, breed, owner_id) VALUES ("${name}","${father_id}","${mother_id}", "${breed}", ${owner_id})`,
     function (err, res) {
       if (err) throw err;
       console.log(res);
@@ -65,11 +65,34 @@ const insertPets = ({name,breed,owner_id}) => {
   );
 };
 
-// insertPets({ name: "Tommy", breed: "Pug", owner_id: 1 });
-// insertPets({ name: "Bobby", breed: "Pug", owner_id: 1 });
-// insertPets({ name: "Scooby", breed: "Pug", owner_id: 2 });
-// insertPets({ name: "Dobby", breed: "Pug", owner_id: 2 });
-
+insertPets({
+  name: "Tommy",
+  father_id: null,
+  mother_id: null,
+  breed: "Pug",
+  owner_id: 1,
+});
+insertPets({
+  name: "Bobby",
+  father_id: null,
+  mother_id: null,
+  breed: "Pug",
+  owner_id: 1,
+});
+insertPets({
+  name: "Scooby",
+  father_id: 1,
+  mother_id: 2,
+  breed: "Pug",
+  owner_id: 2,
+});
+insertPets({
+  name: "Dobby",
+  father_id: 1,
+  mother_id: 2,
+  breed: "Pug",
+  owner_id: 2,
+});
 
 // Select data
 const selectOwner = (owner_id) => {
@@ -84,6 +107,34 @@ const selectOwner = (owner_id) => {
 
 selectOwner(1);
 selectOwner(2);
+
+// Select data of pets until father_id is 0 and mother_id is 0
+
+// Update data
+const updateOwner = (owner_id, name) => {
+  connection.query(
+    `UPDATE owner SET name = "${name}" WHERE id = ${owner_id}`,
+    function (err, res) {
+      if (err) throw err;
+      console.log(res);
+    }
+  );
+};
+
+// updateOwner(1, "Ramesh");
+
+// Delete data
+const deletePet = (pet_id) => {
+  connection.query(
+    `DELETE FROM pets WHERE id = ${pet_id}`,
+    function (err, res) {
+      if (err) throw err;
+      console.log(res);
+    }
+  );
+};
+
+// deletePet(4);
 
 // Listener
 app.listen(PORT, function () {
