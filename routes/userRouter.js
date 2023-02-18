@@ -46,21 +46,21 @@ router.post("/", (req, res) => {
       },
       (response) => {
         if (userType == "breeder") {
-          // Get user from database for user and breeder linking
-          getUser({ email }, (user) => {
             // Create breeder from user
-            console.log("user"+user);
-            createBreeder({
-              user_id: user.id,
-              farm_type,
-              license,
-            });
-          }, (response) => {
-            if (response !== null)
-                res.status(200).send({ message: "User registered successfully" });
-          });
+            createBreeder(
+              {
+                user_id: response,
+                farm_type,
+                license,
+              },
+              (insertID) => {
+                if (insertID)
+                  res
+                    .status(200)
+                    .send({ message: "User registered successfully" });
+              }
+            );
         }
-        
       }
     );
   } catch (error) {

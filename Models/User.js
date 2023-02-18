@@ -4,12 +4,14 @@ const connection = require("../database/Connection");
 // Bcrypt
 const bcrypt = require("bcrypt");
 
-const createBreeder = ({ farm_type, user_id, license }) => {
+const createBreeder = ({ farm_type, user_id, license },callback) => {
   connection.query(
     `INSERT INTO Breeder (farm_type,breeder_license,user_id) VALUES ("${farm_type}","${license}","${user_id}")`,
     function (err, res) {
-      if (err) throw err;
-      console.log(res);
+      if (err) 
+        return callback(null);
+      console.log("breeder"+res.insertId);
+      return callback(JSON.parse(JSON.stringify(res)).insertId);
     }
   );
 };
@@ -19,11 +21,11 @@ const createUser = (
   callback
 ) => {
   connection.query(
-    `INSERT INTO user (userName,userType,password,email,contact,aadhar) VALUES ("${userName}","${userType}","${password}","${email}","${contact}","${aadhar}")`,
+    `INSERT INTO user (userName,userType,password,email,contact,aadhar,user_status) VALUES ("${userName}","${userType}","${password}","${email}","${contact}","${aadhar}","active")`,
     function (err, res) {
-      if (err) throw err;
-      // console.log(JSON.parse(JSON.stringify(res))[0]);
-      return callback(JSON.parse(JSON.stringify(res))[0]);
+      if (err)
+        return callback(null);
+      return callback(JSON.parse(JSON.stringify(res)).insertId);
     }
   );
 };
