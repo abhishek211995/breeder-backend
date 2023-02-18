@@ -11,45 +11,69 @@ router.use(cookieParser());
 // Bcrypt
 const bcrypt = require("bcrypt");
 // User Model Functions
-const { createUser, createBreeder, getUser } = require("../Models/User");
+const {
+  createUser,
+  createBreeder,
+  loginUser,
+  getUser,
+} = require("../Models/User");
 
+//! Register route
 router.post("/", (req, res) => {
   try {
-    const { userName, userType, password, email, contact, aadhar, license } =
-      req.body;
-
-    const passwordHash = bcrypt.hashSync(password, 10);
-    // Registering user
-    createUser({
+    const {
       userName,
       userType,
-      password: passwordHash,
+      password,
       email,
       contact,
       aadhar,
-    });
+      license,
+      farm_type,
+    } = req.body;
 
-    if (userType == "breeder") {
-      // Get user from database for user and breeder linking
-      getUser({ email, password }, (user) => {
-        // Create breeder from user
-        createBreeder({
-          breeder_id: user.id,
-          license,
-        });
-      });
-    }
-    res.status(200).send({ message: "User registered successfully" });
+    const passwordHash = bcrypt.hashSync(password, 10);
+    // Registering user
+    createUser(
+      {
+        userName,
+        userType,
+        password: passwordHash,
+        email,
+        contact,
+        aadhar,
+        farm_type,
+      },
+      (response) => {
+        if (userType == "breeder") {
+          // Get user from database for user and breeder linking
+          getUser({ email }, (user) => {
+            // Create breeder from user
+            console.log("user"+user);
+            createBreeder({
+              user_id: user.id,
+              farm_type,
+              license,
+            });
+          }, (response) => {
+            if (response !== null)
+                res.status(200).send({ message: "User registered successfully" });
+          });
+        }
+        
+      }
+    );
   } catch (error) {
     res.status(400).send({ message: "User registration failed" });
   }
 });
 
+//! Login route
 router.get("/", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    getUser({ email, password }, (user) => {
+    loginUser({ email, password }, (user) => {
       // Check if user exists
       if (user == null)
         return res

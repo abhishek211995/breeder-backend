@@ -36,7 +36,7 @@ const createTables = () => {
   });
 
   // Create Breeder table
-  query = `CREATE TABLE IF NOT EXISTS Breeder (breeder_id INT NOT NULL,license VARCHAR(255) NOT NULL, FOREIGN KEY (breeder_id) REFERENCES User(id))`;
+  query = `CREATE TABLE IF NOT EXISTS Breeder (breeder_id INT NOT NULL AUTO_INCREMENT,farm_type VARCHAR(255) NOT NULL,breeder_license VARCHAR(255) NOT NULL,user_id INT NOT NULL,PRIMARY KEY(breeder_id), FOREIGN KEY (user_id) REFERENCES User(id))`;
   connection.query(query, function (err, res) {
     if (err) throw err;
     console.log(res);
