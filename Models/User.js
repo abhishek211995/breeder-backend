@@ -1,72 +1,99 @@
 // connection
 const connection = require("../database/Connection");
-
 // Bcrypt
 const bcrypt = require("bcrypt");
 
-const createBreeder = ({ farm_type, user_id, license },callback) => {
+// Register breeder
+const createBreeder = ({ farm_type, user_id, license }, callback) => {
   connection.query(
-    `INSERT INTO Breeder (farm_type,breeder_license,user_id) VALUES ("${farm_type}","${license}","${user_id}")`,
+    `INSERT INTO bre_breeder (farm_type,breeder_license,user_id) VALUES ("${farm_type}","${license}","${user_id}")`,
     function (err, res) {
-      if (err) 
-        return callback(null);
-      console.log("breeder"+res.insertId);
+      if (err) return callback(null);
+      console.log("breeder" + res.insertId);
       return callback(JSON.parse(JSON.stringify(res)).insertId);
     }
   );
 };
 
+// Create Role
+const createRole = ({ role_name }) => {
+  connection.query(
+    `INSERT INTO bre_user_role (role_name) VALUES ("${role_name}")`,
+    function (err, res) {
+      console.log(err);
+    }
+  );
+};
+
+// Register user
 const createUser = (
   { userName, userType, password, email, contact, aadhar },
   callback
 ) => {
+  createRole({ role_name: "admin" });
+  createRole({ role_name: "breeder" });
+  createRole({ role_name: "individual" });
+
+  var type;
+  if (userType == "breeder") type = 2;
+  else if (userType == "admin") type = 1;
+  else type = 3;
   connection.query(
-    `INSERT INTO user (userName,userType,password,email,contact,aadhar,user_status) VALUES ("${userName}","${userType}","${password}","${email}","${contact}","${aadhar}","active")`,
+    `INSERT INTO bre_user (userName,userTypeId,password,email,contact,aadhar,user_status) VALUES ("${userName}","${type}","${password}","${email}","${contact}","${aadhar}","pending_verification")`,
     function (err, res) {
-      if (err)
+      if (err) {
+        console.log(err);
         return callback(null);
+      }
       return callback(JSON.parse(JSON.stringify(res)).insertId);
     }
   );
 };
 
+// Login user
 const loginUser = ({ email, password }, callback) => {
   connection.query(
-    `SELECT * FROM user WHERE email = "${email}"`,
+    `SELECT * FROM bre_user WHERE email = "${email}"`,
     function (err, res) {
-      if (err) throw err;
-      // Validate password
-      const password_auth = bcrypt.compareSync(password, res[0].password);
-      if (!password_auth) return callback(null);
-      // Return user
-      if (res[0].userType == "breeder") {
-        getBreeder(email, (user) => {
-          return callback(user);
-        });
+      if (res.length == 0 || err) {
+        return callback(null);
+      } else if (res[0].user_status == "pending_verification") {
+        return callback("pending_verification");
       } else {
-        return callback(JSON.parse(JSON.stringify(res))[0]);
+        // Validate password
+        const password_auth = bcrypt.compareSync(password, res[0].password);
+        if (!password_auth) return callback(null);
+        // Return user
+        if (res[0].userType == "breeder") {
+          getBreeder(email, (user) => {
+            return callback(user);
+          });
+        } else {
+          return callback(JSON.parse(JSON.stringify(res))[0]);
+        }
       }
     }
   );
 };
 
+// Get user
 const getUser = ({ email }, callback) => {
   var user;
   connection.query(
-    `SELECT * FROM user WHERE email = "${email}"`,
+    `SELECT * FROM bre_user WHERE email = "${email}"`,
     function (err, res) {
-      if (err)
-        return callback(null);
+      if (err) return callback(null);
       user = JSON.parse(JSON.stringify(res))[0];
       return callback(user);
     }
   );
 };
 
+// Get breeder
 const getBreeder = (email, callback) => {
   var user;
   connection.query(
-    `SELECT * FROM user INNER JOIN breeder ON user.id = breeder.user_id WHERE email = "${email}"`,
+    `SELECT * FROM bre_user INNER JOIN breeder ON user.id = breeder.user_id WHERE email = "${email}"`,
     function (err, res) {
       if (err) throw err;
       user = JSON.parse(JSON.stringify(res))[0];
@@ -76,4 +103,24 @@ const getBreeder = (email, callback) => {
   );
 };
 
-module.exports = { createUser, createBreeder, loginUser, getBreeder, getUser };
+// delete user
+const deleteUserPer = ({ email }, callback) => {
+  connection.query(
+    `DELETE FROM bre_user WHERE email = "${email}"`,
+    function (err, res) {
+      if (err) {
+        console.log(err);
+        return callback(null);
+      } else return callback("deleted");
+    }
+  );
+};
+
+module.exports = {
+  createUser,
+  createBreeder,
+  loginUser,
+  getBreeder,
+  getUser,
+  deleteUserPer,
+};

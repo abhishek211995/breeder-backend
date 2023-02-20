@@ -7,6 +7,7 @@ var PORT = process.env.PORT || 3000;
 
 //Mysql connection
 var connection = require("./database/Connection");
+const { createRole } = require("./Models/master_data");
 
 // Routes import
 var userRouter = require("./routes/userRouter");

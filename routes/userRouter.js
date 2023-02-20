@@ -15,7 +15,7 @@ const {
   createUser,
   createBreeder,
   loginUser,
-  getUser,
+  deleteUserPer,
 } = require("../Models/User");
 
 //! Register route
@@ -33,6 +33,22 @@ router.post("/", (req, res) => {
     } = req.body;
 
     const passwordHash = bcrypt.hashSync(password, 10);
+
+    // Regex for data validation
+    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    const contactRegex = /^[0-9]{10}$/;
+    const aadharRegex = /^[0-9]{12}$/;
+    const NameRegex = /^[a-zA-Z ]{2,30}$/;
+
+    emailRegex.test(email) ||
+      res.status(400).send({ message: "Invalid email" });
+    contactRegex.test(contact) ||
+      res.status(400).send({ message: "Invalid contact" });
+    aadharRegex.test(aadhar) ||
+      res.status(400).send({ message: "Invalid aadhar" });
+    NameRegex.test(userName) ||
+      res.status(400).send({ message: "Invalid name" });
+
     // Registering user
     createUser(
       {
@@ -45,21 +61,37 @@ router.post("/", (req, res) => {
         farm_type,
       },
       (response) => {
+        // Check if user is created
+        if (response == null)
+          res.status(400).send({
+            message: "User registration failed Please try again later",
+          });
+
+        // Check if user is breeder
         if (userType == "breeder") {
-            // Create breeder from user
-            createBreeder(
-              {
-                user_id: response,
-                farm_type,
-                license,
-              },
-              (insertID) => {
-                if (insertID)
-                  res
-                    .status(200)
-                    .send({ message: "User registered successfully" });
+          createBreeder(
+            {
+              user_id: response,
+              farm_type,
+              license,
+            },
+            (insertID) => {
+              // Check if breeder is created
+              if (insertID)
+                res
+                  .status(200)
+                  .send({ message: "User registered successfully" });
+              else {
+                // Delete user if breeder is not created
+                deleteUserPer({ email }, (response) => {
+                  if (response)
+                    res
+                      .status(400)
+                      .send({ message: "User registration failed" });
+                });
               }
-            );
+            }
+          );
         }
       }
     );
@@ -79,6 +111,12 @@ router.get("/", async (req, res) => {
         return res
           .status(400)
           .send({ message: "User not exist or you have entered wrong fields" });
+
+      // Check if user is verified
+      if (user == "pending_verification")
+        return res
+          .status(200)
+          .send({ message: "User is not verified yet please try again later" });
 
       // Create and assign a token
       const token = jwt.sign({ user }, process.env.TOKEN_SECRET);

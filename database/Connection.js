@@ -1,12 +1,18 @@
 var mysql = require("mysql");
 
+// Create Roles
+const { createRole } = require("../Models/master_data");
+
+// dotenv
+require("dotenv").config();
+
 // MySQL setup
 var connection = mysql.createConnection({
-  host: "localhost",
-  port: 3306,
-  user: "root",
-  password: "Hrushi@2003",
-  database: "breeder",
+  host: process.env.HOST,
+  port: process.env.PORT,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: process.env.DATABASE,
 });
 
 connection.connect(function (err) {
@@ -28,22 +34,29 @@ createDatabase();
 
 // Create tables
 const createTables = () => {
+  
+  // Create User_Role table
+  query = `CREATE TABLE IF NOT EXISTS bre_user_role (role_id INT NOT NULL AUTO_INCREMENT,role_name ENUM('admin','breeder','individual') NOT NULL,PRIMARY KEY(role_id))`;
+  connection.query(query, function (err, res) {
+    if (err) throw err;
+    console.log(res);
+  });
   // Create User table
-  var query = `CREATE TABLE IF NOT EXISTS bre_User (id INT NOT NULL AUTO_INCREMENT, userName VARCHAR(255) NOT NULL,userType VARCHAR(255) NOT NULL,email VARCHAR(255) NOT NULL UNIQUE, password VARCHAR(255) NOT NULL,contact VARCHAR(255) NOT NULL,aadhar VARCHAR(255) NOT NULL,user_register_time DATETIME DEFAULT CURRENT_TIMESTAMP,user_update_time DATETIME DEFAULT CURRENT_TIMESTAMP,user_status ENUM('active','deleted') NOT NULL, PRIMARY KEY (id))`;
+  var query = `CREATE TABLE IF NOT EXISTS bre_user (id INT NOT NULL AUTO_INCREMENT, userName VARCHAR(255) NOT NULL,userTypeId INT NOT NULL,email VARCHAR(255) NOT NULL UNIQUE, password VARCHAR(255) NOT NULL,contact VARCHAR(255) NOT NULL,aadhar VARCHAR(255) NOT NULL,user_register_time DATETIME DEFAULT CURRENT_TIMESTAMP,user_update_time DATETIME DEFAULT CURRENT_TIMESTAMP,user_status ENUM('pending_verification','verified') NOT NULL, PRIMARY KEY (id),Foreign Key (userTypeId) References bre_User_Role(role_id))`;
   connection.query(query, function (err, res) {
     if (err) throw err;
     console.log(res);
   });
 
   // Create Breeder table
-  query = `CREATE TABLE IF NOT EXISTS bre_Breeder (breeder_id INT NOT NULL AUTO_INCREMENT,farm_type VARCHAR(255) NOT NULL,breeder_license VARCHAR(255) NOT NULL,user_id INT NOT NULL,PRIMARY KEY(breeder_id), FOREIGN KEY (user_id) REFERENCES bre_User(id))`;
+  query = `CREATE TABLE IF NOT EXISTS bre_breeder (breeder_id INT NOT NULL AUTO_INCREMENT,farm_type VARCHAR(255) NOT NULL,breeder_license VARCHAR(255) NOT NULL,user_id INT NOT NULL,PRIMARY KEY(breeder_id), FOREIGN KEY (user_id) REFERENCES bre_User(id))`;
   connection.query(query, function (err, res) {
     if (err) throw err;
     console.log(res);
   });
 
   // Create Farm table
-  query = `CREATE TABLE IF NOT EXISTS bre_Farm (farm_id INT NOT NULL AUTO_INCREMENT,farm_name VARCHAR(255) NOT NULL,farm_description VARCHAR(255) NOT NULL,PRIMARY KEY(farm_id))`;
+  query = `CREATE TABLE IF NOT EXISTS bre_farm (farm_id INT NOT NULL AUTO_INCREMENT,farm_name VARCHAR(255) NOT NULL,farm_description VARCHAR(255) NOT NULL,PRIMARY KEY(farm_id))`;
   connection.query(query, function (err, res) {
     if (err) throw err;
     console.log(res);
@@ -51,13 +64,6 @@ const createTables = () => {
 
   // Create Animal table
   query = `CREATE TABLE IF NOT EXISTS bre_Animal (animal_id INT NOT NULL AUTO_INCREMENT,animal_name VARCHAR(255) NOT NULL,animal_description VARCHAR(255) NOT NULL,PRIMARY KEY(animal_id))`;
-  connection.query(query, function (err, res) {
-    if (err) throw err;
-    console.log(res);
-  });
-
-  // Create User_Role table
-  query = `CREATE TABLE IF NOT EXISTS bre_User_Role (role_id INT NOT NULL,role_name ENUM('admin','breeder','individual') NOT NULL,PRIMARY KEY(role_id))`;
   connection.query(query, function (err, res) {
     if (err) throw err;
     console.log(res);
