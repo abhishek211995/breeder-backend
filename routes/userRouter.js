@@ -84,7 +84,7 @@ router.post("/", (req, res) => {
               else {
                 // Delete user if breeder is not created
                 deleteUserPer({ email }, (response) => {
-                  if (response)
+                  if (response === "deleted")
                     res
                       .status(400)
                       .send({ message: "User registration failed" });
