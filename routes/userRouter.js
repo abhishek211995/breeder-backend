@@ -19,7 +19,7 @@ const {
 } = require("../Models/User");
 
 //! Register route
-router.post("/", (req, res) => {
+const register = (req, res, next) => {
   try {
     const {
       userName,
@@ -98,10 +98,10 @@ router.post("/", (req, res) => {
   } catch (error) {
     res.status(400).send({ message: "User registration failed" });
   }
-});
+};
 
 //! Login route
-router.post("/", async (req, res) => {
+const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -131,6 +131,9 @@ router.post("/", async (req, res) => {
   } catch (error) {
     res.status(400).send({ message: "User login failed" });
   }
-});
+};
 
-module.exports = router;
+module.exports = {
+  register,
+  login,
+};

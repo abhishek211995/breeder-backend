@@ -17,9 +17,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Routes
-app.use("/register", userRouter);
-app.use("/login", userRouter);
-
+app.use("/auth/register", userRouter.register);
+app.use("/auth/login", userRouter.login);
 
 // Listener
 app.listen(PORT, function () {
