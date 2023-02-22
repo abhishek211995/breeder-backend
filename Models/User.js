@@ -49,7 +49,7 @@ const createUser = (
 const loginUser = ({ email, password }, callback) => {
   pool.getConnection(function (err, connection) {
     if (err) {
-      connection.release();
+      // connection.release();
       throw err;
     }
     connection.query(
