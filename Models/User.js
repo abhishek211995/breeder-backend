@@ -1,5 +1,5 @@
 // connection
-const pool = require("../database/Connection");
+const connection = require("../database/Connection");
 // Bcrypt
 const bcrypt = require("bcrypt");
 
@@ -42,39 +42,30 @@ const createUser = (
 
 // Login user
 const loginUser = ({ email, password }, callback) => {
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      // connection.release();
-      // throw err;\
-      console.log("error connecting to db retrying in 1 sec");
-      setTimeout(() => {
-        loginUser({ email, password }, callback);
-      }, 1000);
-    }
-    connection.query(
-      `SELECT * FROM bre_user WHERE email = "${email}"`,
-      function (err, res) {
-        console.log(res);
-        if (res?.length == 0 || err) {
-          return callback(null);
-        } else if (res[0]?.user_status == "pending_verification") {
-          return callback("pending_verification");
+  connection.query(
+    `SELECT * FROM bre_user WHERE email = "${email}"`,
+    function (err, res) {
+      console.log(res);
+      console.log(err);
+      if (res.length == 0 || err) {
+        return callback(null);
+      } else if (res[0].user_status == "pending_verification") {
+        return callback("pending_verification");
+      } else {
+        // Validate password
+        const password_auth = bcrypt.compareSync(password, res[0].password);
+        if (!password_auth) return callback(null);
+        // Return user
+        if (res[0].userType == "breeder") {
+          getBreeder(email, (user) => {
+            return callback(user);
+          });
         } else {
-          // Validate password
-          const password_auth = bcrypt.compareSync(password, res[0].password);
-          if (!password_auth) return callback(null);
-          // Return user
-          if (res[0]?.userType == "breeder") {
-            getBreeder(email, (user) => {
-              return callback(user);
-            });
-          } else {
-            return callback(JSON.parse(JSON.stringify(res))[0]);
-          }
+          return callback(JSON.parse(JSON.stringify(res))[0]);
         }
       }
-    );
-  });
+    }
+  );
 };
 
 // Get user
