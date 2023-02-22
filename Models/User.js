@@ -6,13 +6,10 @@ const bcrypt = require("bcrypt");
 // Register breeder
 const createBreeder = ({ farm_type, user_id, license }, callback) => {
   var farm_id;
-  if (farm_type == "stud")
-    farm_id = 1;
-  else if (farm_type == "cattery")
-    farm_id = 2;
-  else if (farm_type == "kennel")
-    farm_id = 3;
-    
+  if (farm_type == "stud") farm_id = 1;
+  else if (farm_type == "cattery") farm_id = 2;
+  else if (farm_type == "kennel") farm_id = 3;
+
   connection.query(
     `INSERT INTO bre_breeder (farm_id,breeder_license,user_id) VALUES ("${farm_id}","${license}","${user_id}")`,
     function (err, res) {
@@ -23,13 +20,11 @@ const createBreeder = ({ farm_type, user_id, license }, callback) => {
   );
 };
 
-
 // Register user
 const createUser = (
   { userName, userType, password, email, contact, aadhar },
   callback
 ) => {
-
   var type;
   if (userType == "breeder") type = 2;
   else if (userType == "admin") type = 1;
@@ -50,7 +45,11 @@ const loginUser = ({ email, password }, callback) => {
   pool.getConnection(function (err, connection) {
     if (err) {
       // connection.release();
-      throw err;
+      // throw err;\
+      console.log("error connecting to db retrying in 1 sec");
+      setTimeout(() => {
+        loginUser({ email, password }, callback);
+      }, 1000);
     }
     connection.query(
       `SELECT * FROM bre_user WHERE email = "${email}"`,
@@ -117,8 +116,6 @@ const deleteUserPer = ({ email }, callback) => {
     }
   );
 };
-
-
 
 module.exports = {
   createUser,
