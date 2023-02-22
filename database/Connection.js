@@ -8,6 +8,7 @@ require("dotenv").config();
 
 // MySQL setup
 var connection = mysql.createPool({
+  connectionLimit : 1000,
   host: process.env.HOST,
   port: process.env.PORT,
   user: process.env.USER,
@@ -19,5 +20,7 @@ var connection = mysql.createPool({
 //   if (err) throw err;
 //   console.log("connected as id " + connection.threadId);
 // });
+
+
 
 module.exports = connection;
