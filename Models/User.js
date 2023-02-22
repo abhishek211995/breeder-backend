@@ -50,6 +50,7 @@ const loginUser = ({ email, password }, callback) => {
   connection.query(
     `SELECT * FROM bre_user WHERE email = "${email}"`,
     function (err, res) {
+      console.log(res);
       if (res?.length == 0 || err) {
         return callback(null);
       } else if (res[0]?.user_status == "pending_verification") {
