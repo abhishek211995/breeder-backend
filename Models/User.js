@@ -45,8 +45,6 @@ const loginUser = ({ email, password }, callback) => {
   connection.query(
     `SELECT * FROM bre_user WHERE email = "${email}"`,
     function (err, res) {
-      console.log(res);
-      console.log(err);
       if (res.length == 0 || err) {
         return callback(null);
       } else if (res[0].user_status == "pending_verification") {
@@ -59,7 +57,7 @@ const loginUser = ({ email, password }, callback) => {
         if (res[0].userType == "breeder") {
           getBreeder(email, (user) => {
             return callback(user);
-          });
+          });          
         } else {
           return callback(JSON.parse(JSON.stringify(res))[0]);
         }

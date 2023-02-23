@@ -10,12 +10,15 @@ const cookieParser = require("cookie-parser");
 router.use(cookieParser());
 // Bcrypt
 const bcrypt = require("bcrypt");
+// Auth
+const Auth = require("../middleware/Auth");
 // User Model Functions
 const {
   createUser,
   createBreeder,
   loginUser,
   deleteUserPer,
+  getUser,
 } = require("../Models/User");
 
 //! Register route
@@ -64,7 +67,7 @@ const register = (req, res, next) => {
         // Check if user is created
         if (response == null)
           res.status(400).send({
-            message: "User registration failed Please try again later",
+            message: "User already exist",
           });
 
         // Check if user is breeder
@@ -123,7 +126,7 @@ const login = async (req, res) => {
       // Set cookie
       res.cookie(
         "auth-token",
-        { email: token.email, phone: token.phone },
+        { user_id: token.id, role_id: token.user_type_id, email: token.email },
         { httpOnly: true }
       );
       res.status(200).send({ message: "User logged in", user });
@@ -133,7 +136,24 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = {
-  register,
-  login,
+const getUserData = (req, res) => {
+  try {
+    const { email } = req.body;
+
+    getUser({ email }, (user) => {
+      // Check if user exists
+      if (user == null)
+        return res.status(400).send({ message: "Please Login" });
+
+      res.status(200).send({ message: "User found", user });
+    });
+  } catch (error) {
+    res.status(400).send({ message: "User login failed" });
+  }
 };
+
+router.post("/auth/register", register);
+router.post("/auth/login", login);
+router.get("/auth/user", getUserData);
+
+module.exports = router;
