@@ -11,6 +11,7 @@ var connection = require("./database/Connection");
 // Routes import
 var userRouter = require("./routes/userRouter");
 var masterRouter = require("./routes/masterRouter");
+var animalRouter = require("./routes/animalRouter");
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
@@ -19,7 +20,7 @@ app.use(express.json());
 // Routes
 app.use("/", userRouter);
 app.use("/", masterRouter);
-
+app.use("/", animalRouter);
 
 // Listener
 app.listen(PORT, function () {

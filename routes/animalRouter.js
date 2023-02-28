@@ -3,9 +3,9 @@ const express = require("express");
 const router = express.Router();
 
 // Controllers
-const { getFarms } = require("../controllers/masterController");
+const { registerAnimal } = require("../controllers/animalController");
 
 // Routes
-router.get("/getAllFarm", getFarms);
+router.post("/animal/register", registerAnimal);
 
 module.exports = router;

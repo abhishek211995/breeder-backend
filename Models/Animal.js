@@ -3,7 +3,7 @@ const connection = require("../database/Connection");
 
 // Register pet
 // TODO: Genrete microchip no for pet
-const RegisterPet = ({
+const RegisterAnimal = ({
   pet_name,
   pet_description,
   pet_breed,
@@ -45,5 +45,5 @@ const RegisterPet = ({
 };
 
 module.exports = {
-  RegisterPet,
+  RegisterAnimal,
 };
