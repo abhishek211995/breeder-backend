@@ -34,4 +34,10 @@ const createAnimalBreed = (
   );
 };
 
-module.exports = {  createAnimal, createFarm, createAnimalBreed };
+const getAllFarm = (callback) => {
+  connection.query(`SELECT * FROM bre_farm`, function (err, res) {
+    if (err) return callback(null);
+    return callback(JSON.parse(JSON.stringify(res)));
+  });
+};
+module.exports = { createAnimal, createFarm, createAnimalBreed, getAllFarm };
