@@ -29,10 +29,12 @@ const register = (req, res) => {
       userType,
       password,
       email,
-      contact,
-      aadhar,
-      license,
-      farm_type,
+      contact_no,
+      license_no,
+      identification_id_no,
+      identification_id_name,
+      farm_type_id,
+      country,
     } = req.body;
 
     const passwordHash = bcrypt.hashSync(password, 10);
@@ -40,15 +42,12 @@ const register = (req, res) => {
     // Regex for data validation
     const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
     const contactRegex = /^[0-9]{10}$/;
-    const aadharRegex = /^[0-9]{12}$/;
     const NameRegex = /^[a-zA-Z ]{2,30}$/;
 
     emailRegex.test(email) ||
       res.status(400).send({ message: "Invalid email" });
-    contactRegex.test(contact) ||
+    contactRegex.test(contact_no) ||
       res.status(400).send({ message: "Invalid contact" });
-    aadharRegex.test(aadhar) ||
-      res.status(400).send({ message: "Invalid aadhar" });
     NameRegex.test(userName) ||
       res.status(400).send({ message: "Invalid name" });
 
@@ -59,9 +58,10 @@ const register = (req, res) => {
         userType,
         password: passwordHash,
         email,
-        contact,
-        aadhar,
-        farm_type,
+        contact_no,
+        identification_id_no,
+        identification_id_name,
+        country,
       },
       (response) => {
         // Check if user is created
@@ -75,8 +75,8 @@ const register = (req, res) => {
           createBreeder(
             {
               user_id: response,
-              farm_type,
-              license,
+              farm_type_id,
+              license_no,
             },
             (insertID) => {
               // Check if breeder is created
@@ -99,6 +99,7 @@ const register = (req, res) => {
       }
     );
   } catch (error) {
+    console.log(error);
     res.status(400).send({ message: "User registration failed" });
   }
 };

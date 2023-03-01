@@ -4,15 +4,13 @@ const connection = require("../database/Connection");
 const bcrypt = require("bcrypt");
 
 // Register breeder
-const createBreeder = ({ farm_type, user_id, license }, callback) => {
-  var farm_id;
-  if (farm_type == "stud") farm_id = 1;
-  else if (farm_type == "cattery") farm_id = 2;
-  else if (farm_type == "kennel") farm_id = 3;
+const createBreeder = ({ farm_type_id, user_id, license_no }, callback) => {
+
 
   connection.query(
-    `INSERT INTO bre_breeder (farm_id,breeder_license,user_id) VALUES ("${farm_id}","${license}","${user_id}")`,
+    `INSERT INTO bre_breeder (farm_id,breeder_license_no,user_id) VALUES ("${farm_type_id}","${license_no}","${user_id}")`,
     function (err, res) {
+      console.log(err);
       if (err) return callback(null);
       console.log("breeder" + res.insertId);
       return callback(JSON.parse(JSON.stringify(res)).insertId);
@@ -22,7 +20,16 @@ const createBreeder = ({ farm_type, user_id, license }, callback) => {
 
 // Register user
 const createUser = (
-  { userName, userType, password, email, contact, aadhar },
+  {
+    userName,
+    userType,
+    password,
+    email,
+    contact_no,
+    identification_id_no,
+    identification_id_name,
+    country,
+  },
   callback
 ) => {
   var type;
@@ -30,7 +37,7 @@ const createUser = (
   else if (userType == "admin") type = 1;
   else type = 3;
   connection.query(
-    `INSERT INTO bre_user (userName,user_type_id,password,email,contact,aadhar,user_status) VALUES ("${userName}","${type}","${password}","${email}","${contact}","${aadhar}","pending_verification")`,
+    `INSERT INTO bre_user (userName,user_type_id,password,email,contact_no,user_country,identification_id_no,identification_id_name,user_status) VALUES ("${userName}","${type}","${password}","${email}","${contact_no}","${country}","${identification_id_no}","${identification_id_name}","pending_verification")`,
     function (err, res) {
       if (err) {
         return callback(null);
@@ -57,7 +64,7 @@ const loginUser = ({ email, password }, callback) => {
         if (res[0].userType == "breeder") {
           getBreeder(email, (user) => {
             return callback(user);
-          });          
+          });
         } else {
           return callback(JSON.parse(JSON.stringify(res))[0]);
         }
