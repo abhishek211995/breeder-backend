@@ -1,8 +1,9 @@
 
 // Controllers
-const { RegisterAnimal } = require("../controllers/animalController");
+const { RegisterAnimal } = require("../Models/Animal");
 
 const registerAnimal = (req, res) => {
+    
     RegisterAnimal(req.body, (data) => {
         if (data) {
             res.status(200).send({message:"Animal Registered Successfully"});

@@ -137,11 +137,13 @@ const login = async (req, res) => {
   }
 };
 
+//! Get user data
 const getUserData = (req, res) => {
   try {
-    const { email } = req.body;
+    const id = req.params['id'];
+    console.log(id);
 
-    getUser({ email }, (user) => {
+    getUser({ id }, (user) => {
       // Check if user exists
       if (user == null)
         return res.status(400).send({ message: "Please Login" });

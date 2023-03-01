@@ -74,10 +74,10 @@ const loginUser = ({ email, password }, callback) => {
 };
 
 // Get user
-const getUser = ({ email }, callback) => {
+const getUser = ({ id }, callback) => {
   var user;
   connection.query(
-    `SELECT * FROM bre_user WHERE email = "${email}"`,
+    `SELECT * FROM bre_user WHERE id = "${id}"`,
     function (err, res) {
       if (err) return callback(null);
       user = JSON.parse(JSON.stringify(res))[0];
