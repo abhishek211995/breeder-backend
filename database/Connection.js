@@ -15,6 +15,15 @@ var connection = mysql.createPool({
   password: process.env.PASSWORD,
   database: process.env.DATABASE,
 });
+var getConnection = function(callback) {
+  connection.getConnection(function(err, connection) {
+      // callback(err, connection);
+    console.log(err);
+    console.log(connection.state);
+  });
+};
+
+getConnection();
 
 // connection.connect(function (err) {
 //   if (err) throw err;
