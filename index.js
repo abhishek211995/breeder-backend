@@ -17,8 +17,8 @@ const cors = require("cors");
 app.use(cors());
 
 // Middleware
-app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use("/", userRouter);

@@ -13,6 +13,7 @@ const bcrypt = require("bcrypt");
 // Auth
 const Auth = require("../middleware/Auth");
 // User Model Functions
+
 const {
   createUser,
   createBreeder,
@@ -22,7 +23,7 @@ const {
 } = require("../Models/User");
 
 //! Register route
-const register = (req, res) => {
+const register = async (req, res, next) => {
   try {
     const {
       userName,
@@ -36,23 +37,17 @@ const register = (req, res) => {
       farm_type_id,
       country,
     } = req.body;
-
+    let identity_doc = { key: "" };
+    let license_doc = { key: "" };
+    if (req.files) {
+      identity_doc = req.files.identity_doc[0];
+      license_doc = req.files.license_doc[0];
+    }
     const passwordHash = bcrypt.hashSync(password, 10);
 
-    // Regex for data validation
-    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-    const contactRegex = /^[0-9]{10}$/;
-    const NameRegex = /^[a-zA-Z ]{2,30}$/;
-
-    emailRegex.test(email) ||
-      res.status(400).send({ message: "Invalid email" });
-    contactRegex.test(contact_no) ||
-      res.status(400).send({ message: "Invalid contact" });
-    NameRegex.test(userName) ||
-      res.status(400).send({ message: "Invalid name" });
-
     // Registering user
-    createUser(
+
+    await createUser(
       {
         userName,
         userType,
@@ -62,13 +57,13 @@ const register = (req, res) => {
         identification_id_no,
         identification_id_name,
         country,
+        identity_doc_name: identity_doc.key,
       },
       (response) => {
         // Check if user is created
-        if (response == null)
-          res.status(400).send({
-            message: "User already exist",
-          });
+        if (response == null) {
+          next();
+        }
 
         // Check if user is breeder
         if (userType == "breeder") {
@@ -77,27 +72,33 @@ const register = (req, res) => {
               user_id: response,
               farm_type_id,
               license_no,
+              license_doc: license_doc.key,
             },
             (insertID) => {
               // Check if breeder is created
               if (insertID)
-                res
+                return res
                   .status(200)
                   .send({ message: "User registered successfully" });
               else {
                 // Delete user if breeder is not created
                 deleteUserPer({ email }, (response) => {
                   if (response === "deleted")
-                    res
+                    return res
                       .status(400)
                       .send({ message: "User registration failed" });
                 });
               }
             }
           );
+        } else {
+          return res
+            .status(200)
+            .send({ message: "we will register individual later" });
         }
       }
     );
+    // return res.status(400).send({ message: "User registration failed" });
   } catch (error) {
     console.log(error);
     res.status(400).send({ message: "User registration failed" });
@@ -140,7 +141,7 @@ const login = async (req, res) => {
 //! Get user data
 const getUserData = (req, res) => {
   try {
-    const id = req.params['id'];
+    const id = req.params["id"];
     console.log(id);
 
     getUser({ id }, (user) => {
@@ -156,7 +157,7 @@ const getUserData = (req, res) => {
 };
 
 module.exports = {
-    register,
-    login,
-    getUserData
-}
+  register,
+  login,
+  getUserData,
+};

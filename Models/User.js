@@ -4,22 +4,23 @@ const connection = require("../database/Connection");
 const bcrypt = require("bcrypt");
 
 // Register breeder
-const createBreeder = ({ farm_type_id, user_id, license_no }, callback) => {
-
-
+const createBreeder = (
+  { farm_type_id, user_id, license_no, license_doc },
+  callback
+) => {
   connection.query(
-    `INSERT INTO bre_breeder (farm_id,breeder_license_no,user_id) VALUES ("${farm_type_id}","${license_no}","${user_id}")`,
+    `INSERT INTO bre_breeder (farm_id,breeder_license_no,user_id,license_doc) VALUES ("${farm_type_id}","${license_no}","${user_id}","${license_doc}")`,
     function (err, res) {
       console.log(err);
       if (err) return callback(null);
-      console.log("breeder" + res.insertId);
+      // console.log("breeder" + res.insertId);
       return callback(JSON.parse(JSON.stringify(res)).insertId);
     }
   );
 };
 
 // Register user
-const createUser = (
+const createUser = async (
   {
     userName,
     userType,
@@ -29,6 +30,7 @@ const createUser = (
     identification_id_no,
     identification_id_name,
     country,
+    identity_doc_name,
   },
   callback
 ) => {
@@ -37,11 +39,13 @@ const createUser = (
   else if (userType == "admin") type = 1;
   else type = 3;
   connection.query(
-    `INSERT INTO bre_user (userName,user_type_id,password,email,contact_no,user_country,identification_id_no,identification_id_name,user_status) VALUES ("${userName}","${type}","${password}","${email}","${contact_no}","${country}","${identification_id_no}","${identification_id_name}","pending_verification")`,
+    `INSERT INTO bre_user (userName,user_type_id,password,email,contact_no,user_country,identification_id_no,identification_id_name,user_status,identity_doc_name) VALUES ("${userName}","${type}","${password}","${email}","${contact_no}","${country}","${identification_id_no}","${identification_id_name}","pending_verification","${identity_doc_name}")`,
     function (err, res) {
+      console.log("err", err);
       if (err) {
         return callback(null);
       }
+      // console.log("user creation res", res);
       return callback(JSON.parse(JSON.stringify(res)).insertId);
     }
   );
