@@ -11,7 +11,7 @@ var connection = require("./database/Connection");
 var userRouter = require("./routes/userRouter");
 var masterRouter = require("./routes/masterRouter");
 var animalRouter = require("./routes/animalRouter");
-
+var breederRouter = require("./routes/breederRouter");
 // cors
 const cors = require("cors");
 app.use(cors());
@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/", userRouter);
 app.use("/", masterRouter);
 app.use("/", animalRouter);
-
+app.use("/", breederRouter);
 // Listener
 app.listen(PORT, function () {
   console.log("App listening on PORT: " + PORT);

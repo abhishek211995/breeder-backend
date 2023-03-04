@@ -40,8 +40,8 @@ const register = async (req, res, next) => {
     let identity_doc = { key: "" };
     let license_doc = { key: "" };
     if (req.files) {
-      identity_doc = req.files.identity_doc[0];
-      license_doc = req.files.license_doc[0];
+      identity_doc = req?.files?.identity_doc[0];
+      license_doc = req?.files?.license_doc[0];
     }
     const passwordHash = bcrypt.hashSync(password, 10);
 
