@@ -9,42 +9,42 @@ const imageFilter = (req, file, cb) => {
   cb(null, true);
 };
 const uploadImages = multer({
-  fileFilter: imageFilter,
-  storage: multerS3({
-    s3: new aws.S3Client({
-      credentials: {
-        accessKeyId: process.env.ACCESS_KEY_ID.trim(),
-        secretAccessKey: process.env.SECRET_ACCESS_KEY.trim(),
-      },
-      region: "ap-south-1",
-    }),
-    bucket: process.env.BUCKET,
-    metadata: function (req, file, cb) {
-      cb(null, { fieldName: file.fieldname });
-    },
-    key: function (req, file, cb) {
-      cb(null, file.originalname);
-    },
-  }),
+  // fileFilter: imageFilter,
+  // storage: multerS3({
+  //   s3: new aws.S3Client({
+  //     credentials: {
+  //       accessKeyId: process.env.ACCESS_KEY_ID.trim(),
+  //       secretAccessKey: process.env.SECRET_ACCESS_KEY.trim(),
+  //     },
+  //     region: "ap-south-1",
+  //   }),
+  //   bucket: process.env.BUCKET,
+  //   metadata: function (req, file, cb) {
+  //     cb(null, { fieldName: file.fieldname });
+  //   },
+  //   key: function (req, file, cb) {
+  //     cb(null, file.originalname);
+  //   },
+  // }),
 }).single("file");
 
 const uploadDocument = multer({
-  storage: multerS3({
-    s3: new aws.S3Client({
-      credentials: {
-        accessKeyId: process.env.ACCESS_KEY_ID.trim(),
-        secretAccessKey: process.env.SECRET_ACCESS_KEY.trim(),
-      },
-      region: "ap-south-1",
-    }),
-    bucket: process.env.BUCKET,
-    metadata: function (req, file, cb) {
-      cb(null, { fieldName: file.fieldname });
-    },
-    key: function (req, file, cb) {
-      cb(null, file.originalname);
-    },
-  }),
+  // storage: multerS3({
+  //   s3: new aws.S3Client({
+  //     credentials: {
+  //       accessKeyId: process.env.ACCESS_KEY_ID.trim(),
+  //       secretAccessKey: process.env.SECRET_ACCESS_KEY.trim(),
+  //     },
+  //     region: "ap-south-1",
+  //   }),
+  //   bucket: process.env.BUCKET,
+  //   metadata: function (req, file, cb) {
+  //     cb(null, { fieldName: file.fieldname });
+  //   },
+  //   key: function (req, file, cb) {
+  //     cb(null, file.originalname);
+  //   },
+  // }),
 }).fields([
   { name: "identity_doc", maxCount: 1 },
   { name: "license_doc", maxCount: 1 },

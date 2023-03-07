@@ -3,9 +3,13 @@ const express = require("express");
 const router = express.Router();
 
 // Controllers
-const { getFarms } = require("../controllers/masterController");
+const {
+  getFarmMaster,
+  getAnimalMasterData,
+} = require("../controllers/masterController");
 
 // Routes
-router.get("/getAllFarm", getFarms);
+router.get("/getAllFarm", getFarmMaster);
+router.get("/getAnimalMaster", getAnimalMasterData);
 
 module.exports = router;

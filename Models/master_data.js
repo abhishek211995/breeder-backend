@@ -34,10 +34,33 @@ const createAnimalBreed = (
   );
 };
 
+// get farm master
 const getAllFarm = (callback) => {
   connection.query(`SELECT * FROM bre_farm`, function (err, res) {
     if (err) return callback(null);
     return callback(JSON.parse(JSON.stringify(res)));
   });
 };
-module.exports = { createAnimal, createFarm, createAnimalBreed, getAllFarm };
+
+// get animal master
+const getAnimalMaster = (callback) => {
+  try {
+    console.log("getAnimalMaster");
+    connection.query("SELECT * FROM bre_animal_master", (err, res) => {
+      if (err) {
+        console.log(err);
+        return callback(null);
+      }
+      return callback(JSON.parse(JSON.stringify(res)));
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
+module.exports = {
+  // createAnimal,
+  // createFarm,
+  // createAnimalBreed,
+  getAllFarm,
+  getAnimalMaster,
+};

@@ -98,7 +98,7 @@ const register = async (req, res, next) => {
         }
       }
     );
-    // return res.status(400).send({ message: "User registration failed" });
+    return res.status(400).send({ message: "User registration failed" });
   } catch (error) {
     console.log(error);
     res.status(400).send({ message: "User registration failed" });
