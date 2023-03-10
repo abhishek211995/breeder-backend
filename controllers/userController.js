@@ -98,7 +98,6 @@ const register = async (req, res, next) => {
         }
       }
     );
-    return res.status(400).send({ message: "User registration failed" });
   } catch (error) {
     console.log(error);
     res.status(400).send({ message: "User registration failed" });
@@ -131,6 +130,10 @@ const login = async (req, res) => {
         { user_id: token.id, role_id: token.user_type_id, email: token.email },
         { httpOnly: true }
       );
+
+      localStorage.setItem("user_id", token.id);
+      localStorage.setItem("role_id", token.user_type_id);
+      localStorage.setItem("email", token.email);
       res.status(200).send({ message: "User logged in", user });
     });
   } catch (error) {
