@@ -6,10 +6,12 @@ const router = express.Router();
 const {
   registerAnimal,
   getAnimalBreed,
+  getAllAnimal
 } = require("../controllers/animalController");
 
 // Routes
 router.post("/animal/register", registerAnimal);
 router.get("/animal/breed", getAnimalBreed);
+router.get("/animal", getAllAnimal);
 
 module.exports = router;

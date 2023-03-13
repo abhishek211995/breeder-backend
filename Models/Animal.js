@@ -75,8 +75,20 @@ const getBreed = (animal_id, callback) => {
   }
 };
 
+const getAnimals = (callback) => {
+  connection.query("SELECT * FROM bre_animal", function (err, res) {
+    if (err) {
+      console.log(err);
+      return callback(null);
+    }
+    return callback(JSON.parse(JSON.stringify(res)));
+  });
+};
+
+
 module.exports = {
   RegisterAnimal,
   getBreed,
   getAnimalCount,
+  getAnimals,
 };

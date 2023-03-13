@@ -3,6 +3,7 @@ const {
   RegisterAnimal,
   getBreed,
   getAnimalCount,
+  getAnimals,
 } = require("../Models/Animal");
 
 const registerAnimal = (req, res) => {
@@ -100,4 +101,21 @@ const getAnimalBreed = (req, res) => {
   }
 };
 
-module.exports = { registerAnimal, getAnimalBreed };
+// get all animal
+const getAllAnimal = (req, res) => {
+  try {
+    getAnimals((data) => {
+      if (data) {
+        res.status(200).send(data);
+      } else {
+        res.status(400).send({ message: "Error in getting all animal" });
+      }
+    });
+  } catch (error) {
+    res.status(400).send({ message: "Error in getting all animal" });
+  }
+}
+    
+
+
+module.exports = { registerAnimal, getAnimalBreed,getAllAnimal };
