@@ -5,15 +5,30 @@ const bcrypt = require("bcrypt");
 
 // Register breeder
 const createBreeder = (
-  { farm_type_id, user_id, license_no, license_doc },
+  { farm_type_id, user_id, license_no },
   callback
 ) => {
   connection.query(
-    `INSERT INTO bre_breeder (farm_id,breeder_license_no,user_id,license_doc) VALUES ("${farm_type_id}","${license_no}","${user_id}","${license_doc}")`,
+    `INSERT INTO bre_breeder (farm_id,breeder_license_no,user_id) VALUES ("${farm_type_id}","${license_no}","${user_id}")`,
     function (err, res) {
       console.log(err);
       if (err) return callback(null);
       // console.log("breeder" + res.insertId);
+      return callback(JSON.parse(JSON.stringify(res)).insertId);
+    }
+  );
+};
+
+// add breeder doc details in breeder_doc_verification table
+const addBreederDoc = (
+  { breeder_id, license_doc, license_doc_expiry_date, license_doc_status },
+  callback
+) => {
+  connection.query(
+    `INSERT INTO bre_breeder_license_verification (breeder_id,license_doc,license_doc_expiry_date,license_doc_status) VALUES ("${breeder_id}","${license_doc}","${license_doc_expiry_date}", "${license_doc_status}")`,
+    function (err, res) {
+      console.log(err);
+      if (err) return callback(null);
       return callback(JSON.parse(JSON.stringify(res)).insertId);
     }
   );
@@ -42,7 +57,9 @@ const createUser = async (
     `INSERT INTO bre_user (userName,user_type_id,password,email,contact_no,user_country,identification_id_no,identification_id_name,user_status,identity_doc_name) VALUES ("${userName}","${type}","${password}","${email}","${contact_no}","${country}","${identification_id_no}","${identification_id_name}","pending_verification","${identity_doc_name}")`,
     function (err, res) {
       console.log("err", err);
-      if (err) {
+      if (err && err.code == "ER_DUP_ENTRY") {
+        return callback("duplicate");
+      } else if (err) {
         return callback(null);
       }
       // console.log("user creation res", res);
@@ -90,20 +107,6 @@ const getUser = ({ id }, callback) => {
   );
 };
 
-// Get breeder
-const getBreeder = (email, callback) => {
-  var user;
-  connection.query(
-    `SELECT * FROM bre_user INNER JOIN breeder ON user.id = breeder.user_id WHERE email = "${email}"`,
-    function (err, res) {
-      if (err) throw err;
-      user = JSON.parse(JSON.stringify(res))[0];
-      console.log(user);
-      return callback(user);
-    }
-  );
-};
-
 // delete user
 const deleteUserPer = ({ email }, callback) => {
   connection.query(
@@ -117,11 +120,46 @@ const deleteUserPer = ({ email }, callback) => {
   );
 };
 
+// delete breeder
+const deleteBreederPer = ({ id }, callback) => {
+  connection.query(
+    `DELETE FROM bre_breeder WHERE id = "${id}"`,
+    function (err, res) {
+      if (err) {
+        console.log(err);
+        return callback(null);
+      } else return callback("deleted");
+    }
+  );
+};
+
 module.exports = {
   createUser,
   createBreeder,
   loginUser,
-  getBreeder,
+  // getBreeder,
   getUser,
   deleteUserPer,
+  addBreederDoc,
+  deleteBreederPer,
 };
+
+// cron to update doc status to unverified after expiry date is reached
+// const cron = require("node-cron");
+// const { connection } = require("../database/Connection");
+
+// cron.schedule("0 0 0 * * *", () => {
+//   console.log("running a task every day at midnight");
+//   connection.query(
+//     `UPDATE bre_breeder_license_verification SET license_doc_status = "unverified" WHERE license_doc_expiry_date < CURDATE()`,
+//     function (err, res) {
+//       if (err) {
+//         console.log(err);
+//         return;
+//       } else {
+//         console.log("updated");
+//         return;
+//       }
+//     }
+//   );
+// });

@@ -11,4 +11,18 @@ const getBreeders = async (callback) => {
   );
 };
 
-module.exports = { getBreeders };
+// Get breeder
+const getBreeder = (id, callback) => {
+  var user;
+  connection.query(
+    `SELECT * FROM bre_user INNER JOIN bre_breeder ON bre_user.id = bre_breeder.user_id WHERE id = "${id}"`,
+    function (err, res) {
+      if (err) throw err;
+      user = JSON.parse(JSON.stringify(res))[0];
+      console.log(user);
+      return callback(user);
+    }
+  );
+};
+
+module.exports = { getBreeders, getBreeder };

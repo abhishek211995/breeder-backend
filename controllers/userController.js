@@ -20,6 +20,8 @@ const {
   loginUser,
   deleteUserPer,
   getUser,
+  addBreederDoc,
+  deleteBreederPer,
 } = require("../Models/User");
 
 //! Register route
@@ -36,7 +38,14 @@ const register = async (req, res, next) => {
       identification_id_name,
       farm_type_id,
       country,
+      license_doc_expiry_date,
     } = req.body;
+
+    // Check if license_doc_expiry_date is less than current date
+    if (new Date(license_doc_expiry_date) < new Date()) {
+      return res.status(400).send({ message: "License expired" });
+    }
+
     let identity_doc = { key: "" };
     let license_doc = { key: "" };
     if (req.files) {
@@ -46,7 +55,6 @@ const register = async (req, res, next) => {
     const passwordHash = bcrypt.hashSync(password, 10);
 
     // Registering user
-
     await createUser(
       {
         userName,
@@ -61,8 +69,10 @@ const register = async (req, res, next) => {
       },
       (response) => {
         // Check if user is created
-        if (response == null) {
-          next();
+        if (response == "duplicate") {
+          return res.status(400).send({ message: "User already exists" });
+        } else if (response == null) {
+          return res.status(400).send({ message: "User registration failed" });
         }
 
         // Check if user is breeder
@@ -72,22 +82,37 @@ const register = async (req, res, next) => {
               user_id: response,
               farm_type_id,
               license_no,
-              license_doc: license_doc.key,
             },
             (insertID) => {
               // Check if breeder is created
-              if (insertID)
-                return res
-                  .status(200)
-                  .send({ message: "User registered successfully" });
-              else {
-                // Delete user if breeder is not created
-                deleteUserPer({ email }, (response) => {
-                  if (response === "deleted")
-                    return res
-                      .status(400)
-                      .send({ message: "User registration failed" });
-                });
+              if (insertID) {
+                addBreederDoc(
+                  {
+                    breeder_id: insertID,
+                    license_doc: license_doc.key,
+                    license_doc_expiry_date: license_doc_expiry_date,
+                    license_doc_status: "valid"
+                  },
+                  (response) => {
+                    if (response) {
+                      return res
+                        .status(200)
+                        .send({ message: "User registered successfully" });
+                    } else {
+                      // Delete breeder if breederDoc is not created
+                      deleteBreederPer({ insertID }, (response) => {
+                        if (response === "deleted") {
+                          deleteUserPer({ email }, (response) => {
+                            if (response === "deleted")
+                              return res
+                                .status(400)
+                                .send({ message: "User registration failed" });
+                          });
+                        }
+                      });
+                    }
+                  }
+                );
               }
             }
           );
@@ -145,7 +170,6 @@ const login = async (req, res) => {
 const getUserData = (req, res) => {
   try {
     const id = req.params["id"];
-    console.log(id);
 
     getUser({ id }, (user) => {
       // Check if user exists
