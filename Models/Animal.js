@@ -75,20 +75,38 @@ const getBreed = (animal_id, callback) => {
   }
 };
 
-const getAnimals = (callback) => {
-  connection.query("SELECT * FROM bre_animal", function (err, res) {
-    if (err) {
-      console.log(err);
-      return callback(null);
+// const getAnimals = (callback) => {
+//   connection.query("SELECT * FROM bre_animal", function (err, res) {
+//     if (err) {
+//       console.log(err);
+//       return callback(null);
+//     }
+//     return callback(JSON.parse(JSON.stringify(res)));
+//   });
+// };
+
+// union bre_animal_breed, bre_animal, bre_animal_type,bre_user
+// where bre_animal.animal_id = bre_animal_type.id
+// and bre_animal.breed_id = bre_animal_breed.id
+// and bre_animal.owner_id = bre_user.id
+const getAllAnimals = (callback) => {
+  connection.query(
+    "SELECT pet_name,breed_name,animal_name,pet_dob,gender,userName FROM bre_animal_breed, bre_animal, bre_animal_master,bre_user WHERE bre_animal.breed_id = bre_animal_breed.breed_id AND bre_animal.animal_id = bre_animal_master.animal_id AND bre_animal.owner_id = bre_user.id",
+    function (err, res) {
+      if (err) {
+        console.log(err);
+        return callback(null);
+      }
+      return callback(JSON.parse(JSON.stringify(res)));
     }
-    return callback(JSON.parse(JSON.stringify(res)));
-  });
+  );
 };
+
 
 
 module.exports = {
   RegisterAnimal,
   getBreed,
   getAnimalCount,
-  getAnimals,
+  getAllAnimals,
 };

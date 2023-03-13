@@ -3,7 +3,7 @@ const {
   RegisterAnimal,
   getBreed,
   getAnimalCount,
-  getAnimals,
+  getAllAnimals,
 } = require("../Models/Animal");
 
 const registerAnimal = (req, res) => {
@@ -104,7 +104,7 @@ const getAnimalBreed = (req, res) => {
 // get all animal
 const getAllAnimal = (req, res) => {
   try {
-    getAnimals((data) => {
+    getAllAnimals((data) => {
       if (data) {
         res.status(200).send(data);
       } else {
